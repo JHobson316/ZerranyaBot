@@ -88,4 +88,4 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 client = MyClient(intents=intents)
-client.run('MTI4MjcxMTIxNzUyMTI5OTQ5Ng.Gr1qvG.20FUK4cZ5b5E1C33GEnbVBDQsel6duh6MtKcPI') # Replace with your own token.
+client.run(os.getenv('DISCORD_KEY')) # Replace with your own token.
