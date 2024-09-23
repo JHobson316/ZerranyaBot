@@ -10,11 +10,8 @@ from qrcode.image.styles.moduledrawers.pil import VerticalBarsDrawer
 
 load_dotenv()
 
-cKey = os.getenv('CAT_KEY')
-dKey = os.getenv('DOG_KEY')
-
 def get_cat():
-  response = requests.get('https://api.thecatapi.com/v1/images/search?breed_ids=ctif&api_key={}'.format(cKey))
+  response = requests.get('https://api.thecatapi.com/v1/images/search?breed_ids=ctif&api_key={}'.format(os.getenv('CAT_KEY')))
   json_data = json.loads(response.text)
   retImg = json_data[0]['url']
   retImg2 = retImg.replace('(','').replace(')','')
@@ -22,7 +19,7 @@ def get_cat():
   return retImg2
 
 def get_dog():
-  response = requests.get('https://api.thedogapi.com/v1/images/search?api_key={}'.format(dKey))
+  response = requests.get('https://api.thedogapi.com/v1/images/search?api_key={}'.format(os.getenv('DOG_KEY')))
   json_data = json.loads(response.text)
   retImg = json_data[0]['url']
   retImg2 = retImg.replace('(','').replace(')','')
