@@ -75,7 +75,8 @@ class MyClient(discord.Client):
     elif message.content.startswith('$bark'):
             await message.channel.send(get_dog())
     elif message.content.startswith('$qr'):
-       link = "https://adventofcode.com/2023/day/14"
+       print(message.content[4:]) #Link for QR Code
+       link = message.content[4:]
        get_bent(link)
        await message.channel.send(f'Here you go, {message.author}!')
        await message.channel.send(file=discord.File('qrImage.png'))
