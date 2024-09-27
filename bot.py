@@ -11,25 +11,25 @@ from qrcode.image.styles.moduledrawers.pil import VerticalBarsDrawer
 load_dotenv()
 
 def get_cat():
-  response = requests.get('https://api.thecatapi.com/v1/images/search?breed_ids=ctif&api_key={}'.format(os.getenv('CAT_KEY')))
-  json_data = json.loads(response.text)
-  retImg = json_data[0]['url']
-  retImg2 = retImg.replace('(','').replace(')','')
-  print(retImg2)
-  return retImg2
+   response = requests.get('https://api.thecatapi.com/v1/images/search?breed_ids=ctif&api_key={}'.format(os.getenv('CAT_KEY')))
+   json_data = json.loads(response.text)
+   retImg = json_data[0]['url']
+   retImg2 = retImg.replace('(','').replace(')','')
+   print(retImg2)
+   return retImg2
 
 def get_dog():
-  response = requests.get('https://api.thedogapi.com/v1/images/search?api_key={}'.format(os.getenv('DOG_KEY')))
-  json_data = json.loads(response.text)
-  retImg = json_data[0]['url']
-  retImg2 = retImg.replace('(','').replace(')','')
-  print(retImg2)
-  return retImg2
+   response = requests.get('https://api.thedogapi.com/v1/images/search?api_key={}'.format(os.getenv('DOG_KEY')))
+   json_data = json.loads(response.text)
+   retImg = json_data[0]['url']
+   retImg2 = retImg.replace('(','').replace(')','')
+   print(retImg2)
+   return retImg2
 
-def get_bent(link):
+def get_qr(link):
    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_L)
    qr.add_data(link)
-   fCode = qr.make_image(image_factory=StyledPilImage, back_color='black', fill_color='blue', module_drawer=VerticalBarsDrawer())
+   fCode = qr.make_image(image_factory=StyledPilImage, back_color=(0, 0, 0), fill_color=(14, 103, 199), module_drawer=VerticalBarsDrawer())
    fCode.save("qrImage.png")
    return
 
@@ -42,6 +42,35 @@ def get_educated():
   retStatement= "Fun Fact: {}".format(moddedFact)
   return retStatement
  
+def get_verified(link):
+  response = requests.get('https://api.api-ninjas.com/v1/urllookup?url={}'.format(link), headers={'X-Api-Key':'{}'.format(os.getenv('NINJA_KEY'))})
+  resFix = json.loads(response.text)
+  print(resFix)
+  is_valid = resFix['is_valid']
+  isp = resFix['isp']
+  country = resFix['country']
+  region = resFix['region']
+  city = resFix['city']
+  timezone = resFix['timezone']
+  url = resFix['url']
+  print(is_valid)
+  cDone = "This is the info we've found at {0}: \n is_valid: {1} \n ISP: {6} \n Country: {2} \n Region: {3} \n City: {4} \n Timezone: {5}".format(url,is_valid,country,region,city,timezone, isp)
+  return cDone
+
+def get_punny():
+  response = requests.get('https://punapi.rest/api/pun')
+  print(response)
+  punFix = json.loads(response.text)
+  print(punFix)
+  return
+
+def get_webby(city):
+  response = requests.get('https://api.api-ninjas.com/v1/weather?city={}'.format(city), headers={'X-Api-Key':'{}'.format(os.getenv('NINJA_KEY'))})
+  print(response)
+  weather = json.loads(response.text)
+  print(weather)
+  return
+  
  # Facts are a premium feature with the API, so no go for now
 
 # def get_facts():
@@ -67,6 +96,8 @@ class MyClient(discord.Client):
       return
     elif message.content.startswith('$hello'):
       await message.channel.send('Hello Darling!')
+    elif message.content.startswith('$pat'):
+      await message.channel.send('**Wags tail enthusiastically** Arf arf!')
     elif message.content.startswith('$roll'):
       luckyRoll = random.randint(1,20)
       match luckyRoll:
@@ -97,13 +128,23 @@ class MyClient(discord.Client):
     elif message.content.startswith('$qr'):
        print(message.content[4:]) #Link for QR Code
        link = message.content[4:]
-       get_bent(link)
+       get_qr(link)
        print('Pow')
        await message.channel.send(f'Here you go, {message.author}!')
        await message.channel.send(file=discord.File('qrImage.png'))
        print('Job done :P')
     elif message.content.startswith('$fact'):
-            await message.channel.send(get_educated())
+       await message.channel.send(get_educated())
+    elif message.content.startswith('$pun'):
+       await message.channel.send(get_punny())
+    elif message.content.startswith('$weather'):
+       city = message.content[9:]
+       print(city)
+       await message.channel.send(get_webby(city))
+    elif message.content.startswith('$ver'):
+       link = message.content[5:]
+       await message.channel.send(get_verified(link))
+       print('Verfication Done')
 
 intents = discord.Intents.default()
 intents.message_content = True
