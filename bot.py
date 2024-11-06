@@ -7,11 +7,12 @@ import json
 import qrcode
 from qrcode.image.styledpil import StyledPilImage
 from qrcode.image.styles.moduledrawers.pil import VerticalBarsDrawer
+from qrcode.image.styles.moduledrawers.pil import GappedSquareModuleDrawer
 
 load_dotenv()
 
 def get_cat():
-   response = requests.get('https://api.thecatapi.com/v1/images/search?breed_ids=ctif&api_key={}'.format(os.getenv('CAT_KEY')))
+   response = requests.get('https://api.thecatapi.com/v1/images/search?api_key={}'.format(os.getenv('CAT_KEY')))
    json_data = json.loads(response.text)
    retImg = json_data[0]['url']
    retImg2 = retImg.replace('(','').replace(')','')
@@ -29,7 +30,7 @@ def get_dog():
 def get_qr(link):
    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_L)
    qr.add_data(link)
-   fCode = qr.make_image(image_factory=StyledPilImage, back_color=(0, 0, 0), fill_color=(14, 103, 199), module_drawer=VerticalBarsDrawer())
+   fCode = qr.make_image(image_factory=StyledPilImage, back_color=(0, 0, 0), fill_color=(14, 103, 199), module_drawer=GappedSquareModuleDrawer())
    fCode.save("qrImage.png")
    return
 
@@ -54,7 +55,7 @@ def get_verified(link):
   timezone = resFix['timezone']
   url = resFix['url']
   print(is_valid)
-  cDone = "This is the info we've found at {0}: \n is_valid: {1} \n ISP: {6} \n Country: {2} \n Region: {3} \n City: {4} \n Timezone: {5}".format(url,is_valid,country,region,city,timezone, isp)
+  cDone = "This is the info I've found at {0}: \n is_valid: {1} \n ISP: {6} \n Country: {2} \n Region: {3} \n City: {4} \n Timezone: {5}".format(url,is_valid,country,region,city,timezone, isp)
   return cDone
 
 def get_punny():
@@ -70,7 +71,18 @@ def get_webby(city):
   weather = json.loads(response.text)
   print(weather)
   return
-  
+
+def get_phoneNum(number):
+  response = requests.get('https://api.api-ninjas.com/v1/validatephone?number={}'.format(number), headers={'X-Api-Key':'{}'.format(os.getenv('NINJA_KEY'))})
+  resFix = json.loads(response.text)
+  intFormat = resFix['format_international']
+  is_valid = resFix['is_valid']
+  country = resFix['country']
+  location = resFix['location']
+  timezones = resFix['timezones']
+  retMessage = "This is the info I've found at {0}: \n is_valid: {1} \n Country: {2} \n Location: {3} \n Timezones: {4}".format(intFormat, is_valid, country, location, timezones)
+  print(retMessage)
+  return retMessage
  # Facts are a premium feature with the API, so no go for now
 
 # def get_facts():
@@ -145,6 +157,11 @@ class MyClient(discord.Client):
        link = message.content[5:]
        await message.channel.send(get_verified(link))
        print('Verfication Done')
+    elif message.content.startswith('$phone'):
+      number = message.content[7:]
+      print(number)
+      await message.channel.send(get_phoneNum(number))
+      print('Number done')
 
 intents = discord.Intents.default()
 intents.message_content = True
