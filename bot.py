@@ -84,18 +84,17 @@ async def urban_search(message):
         
     except Exception as e:
         await message.channel.send(f"An error occurred: {str(e)}")
-
-# Add these functions somewhere in your code
+        
 def get_wiki(query, sentences=3):
     """Get a Wikipedia summary for the given query"""
     try:
         page = wiki.page(query)
-        
         if not page.exists():
             return "Sorry, I couldn't find any Wikipedia article matching that query."
-        
         # Get the first few sentences of the summary
         summary = page.summary[0:1000]  # Limit to 1000 characters
+        #For Codedex submission proof
+        print(page.summary[0:100])
         if len(summary) == 1000:
             summary = summary[:summary.rindex('.')] + '...'
         
@@ -151,12 +150,12 @@ def get_verified(link):
   cDone = "This is the info I've found at {0}: \n is_valid: {1} \n ISP: {6} \n Country: {2} \n Region: {3} \n City: {4} \n Timezone: {5}".format(url,is_valid,country,region,city,timezone, isp)
   return cDone
 
-def get_punny():
-  response = requests.get('https://punapi.rest/api/pun')
+def get_funny():
+  response = requests.get('https://api.api-ninjas.com/v1/jokes', headers = {'X-Api-Key': '{}'.format(os.getenv('NINJA_KEY'))})
   print(response)
   punFix = json.loads(response.text)
-  print(punFix)
-  return
+  print(punFix[0]['joke'])
+  return punFix[0]['joke']
 
 def get_webby(city):
   response = requests.get('https://api.api-ninjas.com/v1/weather?city={}'.format(city), headers={'X-Api-Key':'{}'.format(os.getenv('NINJA_KEY'))})
@@ -235,8 +234,8 @@ class MyClient(discord.Client):
             print('Job done :P')
         case 'fact':
             await message.channel.send(get_educated())
-        case 'pun':
-            await message.channel.send(get_punny())
+        case 'joke':
+            await message.channel.send(get_funny())
         case 'weather':
             city = message.content[9:]
             print(city)
