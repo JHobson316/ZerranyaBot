@@ -7,7 +7,9 @@ import urllib.parse
 import urllib.request
 import json
 import qrcode
+import pynput
 import wikipediaapi
+import time
 from qrcode.image.styledpil import StyledPilImage
 from qrcode.image.styles.moduledrawers.pil import VerticalBarsDrawer
 from qrcode.image.styles.moduledrawers.pil import GappedSquareModuleDrawer
@@ -175,7 +177,8 @@ def get_phoneNum(number):
   retMessage = "This is the info I've found at {0}: \n is_valid: {1} \n Country: {2} \n Location: {3} \n Timezones: {4}".format(intFormat, is_valid, country, location, timezones)
   print(retMessage)
   return retMessage
- # Facts are a premium feature with the API, so no go for now
+
+# Facts are a premium feature with the API, so no go for now
 
 # def get_facts():
 #    catFacts = 'https://api.thecatapi.com/v1/facts?api_key={}'.format(cKey)
@@ -207,20 +210,40 @@ class MyClient(discord.Client):
     match command:
     
         case 'hello':
-            await message.channel.send('Hello Darling!')
+            GreetingList = ['Hi hi! ^-^', 'Hello Darling!', "'Sup?", 'Valkyrii Online', "Standing by", 'What ya want?']
+            selectedGreeting = random.randint(1, len(GreetingList))
+            await message.channel.send(GreetingList[selectedGreeting])
         case 'pat':
             await message.channel.send('**Wags tail enthusiastically** Arf arf!')
         case 'roll':
-            luckyRoll = random.randint(1,20)
-            match luckyRoll:
-                case 1:
-                    retString = "Your roll is... A natural {}. Oof...".format(luckyRoll)
-                case 20:
-                    retString = "Your roll is... A NATURAL {}! Awesome!".format(luckyRoll)
-                case _:
-                    retString = "Your roll is... [{}]".format(luckyRoll)
-            print(retString)
-            await message.channel.send(retString)
+            rollNums = message.content[6:].split("d")
+            # rollBonus = message.content[6:].split("+")
+            print(rollNums)
+            # print(rollBonus)
+            dieAmount = int(rollNums[0])
+            dieSize = int(rollNums[1])
+            await message.channel.send("Rolling {}d{}...".format(dieAmount,dieSize))
+            i = 0
+            luckyRoll2 = 0
+            total = 0
+            while i < dieAmount:
+                luckyRoll2 = random.randint(1, dieSize)
+                total += luckyRoll2
+                i+=1
+                if dieAmount <= 8:
+                    await message.channel.send("Roll {}: {}".format(i,luckyRoll2))
+            print("Total: {}".format(total))
+            await message.channel.send("Total: {}".format(total))
+            # luckyRoll = random.randint(1,20)
+            # match luckyRoll:
+            #     case 1:
+            #         retString = "Your roll is... A natural {}. Oof...".format(luckyRoll)
+            #     case 20:
+            #         retString = "Your roll is... A NATURAL {}! Awesome!".format(luckyRoll)
+            #     case _:
+            #         retString = "Your roll is... [{}]".format(luckyRoll)
+            # print(retString)
+            # await message.channel.send(retString)
         case 'meow':
             await message.channel.send(get_cat())
         case 'bark':
@@ -256,6 +279,9 @@ class MyClient(discord.Client):
             await message.channel.send(get_wiki(query))
         case 'urban':
             await urban_search(message)
+        case 'bye':
+            await message.channel.send("Goodbye!")
+            await client.close()
     
 
 intents = discord.Intents.default()
